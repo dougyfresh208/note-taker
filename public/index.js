@@ -1,0 +1,1 @@
+// Your JavaScript logic for handling notes will go here
