@@ -5,14 +5,14 @@ const { v4: uuidv4 } = require('uuid');
 
 // Helper function to read data from db.json
 function readDbFile() {
-  const dbFilePath = path.join(__dirname, '..', 'db.json');
+  const dbFilePath = path.join(__dirname, '..', 'db', 'db.json');
   const dbData = fs.readFileSync(dbFilePath, 'utf8');
   return JSON.parse(dbData);
 }
 
 // Helper function to write data to db.json
 function writeDbFile(data) {
-  const dbFilePath = path.join(__dirname, '..', 'db.json');
+  const dbFilePath = path.join(__dirname, '..', 'db', 'db.json');
   fs.writeFileSync(dbFilePath, JSON.stringify(data), 'utf8');
 }
 
