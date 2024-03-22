@@ -1,37 +1,43 @@
-// routes/apiRoutes.js
+const router = require('express').Router();
 const fs = require('fs');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-module.exports = function(app) {
-    app.get('/api/notes', (req, res) => {
-        fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            if (err) throw err;
-            res.json(JSON.parse(data));
-        });
-    });
+// Helper function to read data from db.json
+function readDbFile() {
+  const dbFilePath = path.join(__dirname, '..', 'db.json');
+  const dbData = fs.readFileSync(dbFilePath, 'utf8');
+  return JSON.parse(dbData);
+}
 
-    app.post('/api/notes', (req, res) => {
-        const newNote = { ...req.body, id: uuidv4() };
-        fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            if (err) throw err;
-            const notes = JSON.parse(data);
-            notes.push(newNote);
-            fs.writeFile('./db/db.json', JSON.stringify(notes, null, 2), err => {
-                if (err) throw err;
-                res.json(newNote);
-            });
-        });
-    });
+// Helper function to write data to db.json
+function writeDbFile(data) {
+  const dbFilePath = path.join(__dirname, '..', 'db.json');
+  fs.writeFileSync(dbFilePath, JSON.stringify(data), 'utf8');
+}
 
-    app.delete('/api/notes/:id', (req, res) => {
-        const noteId = req.params.id;
-        fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            if (err) throw err;
-            const notes = JSON.parse(data).filter(note => note.id !== noteId);
-            fs.writeFile('./db/db.json', JSON.stringify(notes, null, 2), err => {
-                if (err) throw err;
-                res.json({ message: 'Deleted note' });
-            });
-        });
-    });
-};
+// GET route to return all saved notes
+router.get('/notes', (req, res) => {
+  const notes = readDbFile();
+  res.json(notes);
+});
+
+// POST route to receive a new note, add it to db.json, and return the new note
+router.post('/notes', (req, res) => {
+  const notes = readDbFile();
+  const newNote = { ...req.body, id: uuidv4() };
+  notes.push(newNote);
+  writeDbFile(notes);
+  res.json(newNote);
+});
+
+// DELETE route to delete a note by id
+router.delete('/notes/:id', (req, res) => {
+  const notes = readDbFile();
+  const filteredNotes = notes.filter(note => note.id !== req.params.id);
+  writeDbFile(filteredNotes);
+  res.json({ message: 'Note has been deleted' });
+});
+
+// Export API routes
+module.exports = router;
