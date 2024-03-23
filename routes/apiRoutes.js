@@ -13,8 +13,13 @@ function readDbFile() {
 // Helper function to write data to db.json
 function writeDbFile(data) {
   const dbFilePath = path.join(__dirname, '..', 'db', 'db.json');
-  fs.writeFileSync(dbFilePath, JSON.stringify(data), 'utf8');
+  try {
+    fs.writeFileSync(dbFilePath, JSON.stringify(data), 'utf8');
+  } catch (error) {
+    console.error('Error writing to db.json:', error);
+  }
 }
+  
 
 // GET route to return all saved notes
 router.get('/notes', (req, res) => {
@@ -24,6 +29,7 @@ router.get('/notes', (req, res) => {
 
 // POST route to receive a new note, add it to db.json, and return the new note
 router.post('/notes', (req, res) => {
+  console.log(req.body);
   const notes = readDbFile();
   const newNote = { ...req.body, id: uuidv4() };
   notes.push(newNote);
